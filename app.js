@@ -2,6 +2,13 @@ const addBtn = document.getElementById("todo-button");
 const todoInput = document.getElementById("todo-input");
 const todoUl = document.getElementById("todo-ul");
 
+let todos = JSON.parse(localStorage.getItem("TODOS")) || [];
+const renderSavedTodos = () => {
+  todos.forEach((todo) => {
+    createListElement(todo);
+  });
+};
+renderSavedTodos();
 addBtn.addEventListener("click", () => {
   if (todoInput.value.trim() === "") {
     alert("Please enter new todo");
@@ -12,11 +19,14 @@ addBtn.addEventListener("click", () => {
       text: todoInput.value,
     };
     createListElement(newTodo);
+    todos.push(newTodo);
+
+    localStorage.setItem("TODOS", JSON.stringify(todos));
     todoInput.value = "";
   }
 });
 
-const createListElement = (newTodo) => {
+function createListElement(newTodo) {
   const { id, completed, text } = newTodo;
   const li = document.createElement("li");
   li.setAttribute("id", id);
@@ -37,12 +47,15 @@ const createListElement = (newTodo) => {
   li.appendChild(deleteIcon);
 
   todoUl.appendChild(li);
-};
+}
 todoUl.addEventListener("click", (e) => {
+  const id = e.target.parentElement.getAttribute("id");
   if (e.target.classList.contains("fa-check")) {
     e.target.parentElement.classList.toggle("completed");
   } else if (e.target.classList.contains("fa-trash")) {
     e.target.parentElement.remove();
+    todos = todos.filter((todo) => todo.id != id);
+    localStorage.setItem("TODOS", JSON.stringify(todos));
   }
 });
 
